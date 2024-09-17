@@ -2,10 +2,11 @@
 # KiPa(KisaPalvelu), tuloslaskentajärjestelmä partiotaitokilpailuihin
 #    Copyright (C) 2010  Espoon Partiotuki ry. ept@partio.fi
 
-from django.urls import re_path, include
+from django.urls import re_path
 from .models import *
 from .views import *
 from django.conf import settings
+from django.conf.urls.static import static
 
 tal=r"(?P<talletettu>(talletettu)?)/?$"
 
@@ -45,8 +46,6 @@ urlpatterns = [
         re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/piirit/$', piirit),
 ]
 
-if settings.DEBUG :
-        re_path += patterns('',
-                re_path(r'^kipamedia/(?P<path>.*)$', 'django.views.static.serve',
-                {'document_root': settings.STATIC_DOC_ROOT}),)
+if settings.DEBUG:
+        urlpatterns += static('kipamedia/', document_root=settings.STATIC_DOC_ROOT)
 

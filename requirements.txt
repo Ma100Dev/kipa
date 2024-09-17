@@ -1,3 +1,4 @@
-django==4.1
+django==4.2
 south
 mysqlclient
+watchfiles
