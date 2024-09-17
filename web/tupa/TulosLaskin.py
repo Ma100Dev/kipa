@@ -3,18 +3,18 @@
 #    Copyright (C) 2010  Espoon Partiotuki ry. ept@partio.fi
 
 if not __name__ == "__main__":
-        from funktiot import *
+        from .funktiot import *
 
 from decimal import *
-from laskentatyypit import *
+from .laskentatyypit import *
 import re
-from taulukkolaskin import *
+from .taulukkolaskin import *
 import math
 import operator
 #from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
-from models import *
-import log
+from .models import *
+from . import log
 
 def korvaa(lause,pino,loppu=None) :
     """
@@ -146,15 +146,15 @@ def luoOsatehtavanKaava(ot_lause,parametrit):
     log.logString( "  kaava = " + ot_lause )
     korvautuu=True
 
-    log.logString( u"    Parametrit: "  )
-    for p_nimi,p_arvo in parametrit.items():
+    log.logString( "    Parametrit: "  )
+    for p_nimi,p_arvo in list(parametrit.items()):
         log.logString( "         " + p_nimi +"= " + p_arvo  )
 
     # Korvataan parametrit
     while korvautuu:
         korvautuu=False
         vanha=ot_lause
-        for p_nimi,p_arvo in parametrit.items():
+        for p_nimi,p_arvo in list(parametrit.items()):
             ot_lause=re.sub(p_nimi+r"(?!\w+)",p_arvo,ot_lause)
         # Pikatie "muk" -> "..mukana"
         ot_lause=re.sub("muk"+r"(?!\w+)","..mukana",ot_lause)
@@ -162,7 +162,7 @@ def luoOsatehtavanKaava(ot_lause,parametrit):
         try:
             vartion_kaava=parametrit["vartion_kaava"] #.filter(nimi="vartion_kaava")[0].arvo
             #vartion_kaava=re.sub("vartio"+r"(?!\w+)", str(v.nro) ,vartion_kaava)
-            for p_nimi,p_arvo in parametrit.items() :
+            for p_nimi,p_arvo in list(parametrit.items()) :
                 vartion_kaava=re.sub(p_nimi+r"(?!\w+)",p_arvo,vartion_kaava)
             ot_lause=re.sub("suor"+r"(?!\w+)",suoritusJoukko(vartion_kaava),ot_lause)
         except IndexError: pass
@@ -178,14 +178,14 @@ def luoTehtavanKaava(t,v):
         osatehtavat=t.osatehtava_set.all()
         ot_lauseet=[]
 
-        log.logString( u"<h3>Tehtävä: " + t.nimi.upper()+"</h3>" )
+        log.logString( "<h3>Tehtävä: " + t.nimi.upper()+"</h3>" )
         if t.kaava.upper()=="SS" :
-                log.logString( u"kaava = ⚡⚡" )
+                log.logString( "kaava = ⚡⚡" )
         else:
-                log.logString( u"kaava =  " + t.kaava.upper() )
+                log.logString( "kaava =  " + t.kaava.upper() )
 
         for ot in osatehtavat:
-                log.logString( u"\n<b>Osatehtävä: " + ot.nimi.upper()+"</b>" )
+                log.logString( "\n<b>Osatehtävä: " + ot.nimi.upper()+"</b>" )
                 pino.append(ot.nimi)
 
                 ot_lause = ot.kaava
@@ -295,7 +295,7 @@ def laskeSarja(sarja,syotteet,vartiot=None,tehtavat=None):
                         for t in range(len(tulokset[i])) :
                                 tuom=vartion_tuomarit.filter(tehtava=tehtavat[t])
                                 if len(tuom) :
-                                        log.logString( u"Tuomarineuvoston ylimääritys: " + str(tuom[0].pisteet) )
+                                        log.logString( "Tuomarineuvoston ylimääritys: " + str(tuom[0].pisteet) )
                                         try:
                                                 tulokset[i][t]= Decimal(tuom[0].pisteet)
                                         except:
@@ -307,7 +307,7 @@ def laskeSarja(sarja,syotteet,vartiot=None,tehtavat=None):
                         # Tarkistetaan, että pisteet on laskettu (numeerinen arvo).
                         # Vartion pisteet voivat olla myös esim. H, E tai K (katso
                         # silmukka vähän ylempää), tällöin tarkistus on turha.
-                        if (pisteet and type(pisteet) != str and type(pisteet) != unicode and tehtavat[t].maksimipisteet != '') :
+                        if (pisteet and type(pisteet) != str and type(pisteet) != str and tehtavat[t].maksimipisteet != '') :
                                 # Onko pisteet > max pisteet
                                 if pisteet > float(tehtavat[t].maksimipisteet):
                                         # Lisää huomautus tulosluetteloon
@@ -316,7 +316,7 @@ def laskeSarja(sarja,syotteet,vartiot=None,tehtavat=None):
                 #Kokonaispisteet:
                 summa=0
                 for s in tulokset[i] :
-                        if s and type(s)!=str and type(s)!=unicode : summa+= s
+                        if s and type(s)!=str and type(s)!=str : summa+= s
                 tulokset[i].insert(0,summa)
                 #Vartio objekti jokaisen rivin alkuun:
                 tulokset[i].insert(0,vartiot[i])

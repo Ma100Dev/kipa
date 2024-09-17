@@ -3,20 +3,20 @@
 #    Copyright (C) 2010  Espoon Partiotuki ry. ept@partio.fi
 
 import re
-from laskentatyypit import *
-from funktiot import perusfunktiot
-from funktiot import listafunktiot
+from .laskentatyypit import *
+from .funktiot import perusfunktiot
+from .funktiot import listafunktiot
 import settings
 #from tupa.log import *
-import log
+from . import log
 
 pfunktiot={}
 lfunktiot={}
 
-for k in perusfunktiot.keys() :
+for k in list(perusfunktiot.keys()) :
         def pfunctionfactory( funktio ) : return lambda *a : suorita(funktio,*a)
         pfunktiot[k]= pfunctionfactory( perusfunktiot[k] )
-for k in listafunktiot.keys() :
+for k in list(listafunktiot.keys()) :
         def lfunctionfactory( funktio ) : return lambda *a : suorita_lista(funktio,*a)
         lfunktiot[k]= lfunctionfactory(listafunktiot[k] )
 
@@ -25,7 +25,7 @@ def dictToMathDict(dictionary) :
         Muuttaa tavallisen sanakirjan rekursiivisesti laskennalliseksi sanakirjaksi.
         """
         new=MathDict({})
-        for k in dictionary.keys():
+        for k in list(dictionary.keys()):
                 if type(dictionary[k])==dict : new[k]= dictToMathDict(dictionary[k])
                 else : new[k]=dictionary[k]
         return new
@@ -42,7 +42,7 @@ def laske(lauseke,m={},funktiot={}):
         f=dictToMathDict(f)
 
         log.logString( "<h4> Laskenta: </h4>" )
-        log.logString( u"Tehtävän lause = " + lauseke )
+        log.logString( "Tehtävän lause = " + lauseke )
 
         # Poistetaan välilyonnit ja enterit:
         lause = lauseke.replace('\n','')

@@ -9,7 +9,7 @@ import os.path
 import re
 ##from tupa.models import Kisa
 from django.shortcuts import get_object_or_404
-from duplicate import kisa_xml
+from .duplicate import kisa_xml
 
 from xml.dom.minidom import getDOMImplementation
 impl = getDOMImplementation()
@@ -41,7 +41,7 @@ class PostDataRecorder:
                                 post_test = data.createElement('post_request')
                                 post_test.setAttribute("address", address )
 
-                                for n,v in posti.iteritems():
+                                for n,v in list(posti.items()):
                                         elem = data.createElement('input')
                                         elem.setAttribute("name", n )
                                         elem.setAttribute("value", v )
@@ -53,7 +53,7 @@ class PostDataRecorder:
                                         if not kisa_haku.group(1) == "uusiKisa" :
                                                 kisa = Kisa.objects.get( nimi=kisa_haku.group(1) )
                                                 vanha = kisa_xml(kisa)
-                                                print vanha
+                                                print(vanha)
                                                 uusi.write( kisa_xml(kisa) ) # talletetaan kisan kanta pohjaksi
                                         else :
                                                 uusi.write(record_base) # uusi kisa -> ei olemassaolevaa tietokantaa.

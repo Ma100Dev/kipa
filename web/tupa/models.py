@@ -8,13 +8,13 @@
 
 from django.db import models
 from random import uniform
-from TulosLaskin import *
+from .TulosLaskin import *
 import settings
 
-import thread
+import _thread
 import time
 
-import log
+from . import log
 from binascii import *
 import sys
 
@@ -36,13 +36,13 @@ class Kisa(models.Model) :
 
         class Meta:
                 verbose_name_plural = "Kisat"
-                db_table = u"kipa_kisa"
+                db_table = "kipa_kisa"
 
 class Sarja(models.Model) :
         nimi = models.CharField(max_length=255)
         vartion_maksimikoko = models.IntegerField(blank=True, null=True, default=0 )
         vartion_minimikoko = models.IntegerField(blank=True, null=True,default=0 )
-        kisa = models.ForeignKey(Kisa)
+        kisa = models.ForeignKey(Kisa, on_delete=models.CASCADE)
         tasapiste_teht1 = models.IntegerField(blank=True, null=True )
         tasapiste_teht2 = models.IntegerField(blank=True, null=True )
         tasapiste_teht3 = models.IntegerField(blank=True, null=True )
@@ -85,7 +85,7 @@ class Sarja(models.Model) :
                         log.disableLogging()
                         laskeeName = str(self.kisa.id)+'_'+str(self.id)+'_laskee'
                         laskee=cache.get( laskeeName ) # Tarkistetaan ollaanko tuloksia jo laskemassa.
-                        if not laskee:  thread.start_new_thread( self.laskeTulokset,() )
+                        if not laskee:  _thread.start_new_thread( self.laskeTulokset,() )
 
         def tuloksetUusiksi(self) :
                 # Poistetaan tulosten cache
@@ -94,12 +94,12 @@ class Sarja(models.Model) :
 
         class Meta:
                 verbose_name_plural = "Sarjat"
-                db_table = u"kipa_sarja"
+                db_table = "kipa_sarja"
 
 class Vartio(models.Model) :
         nro = models.IntegerField()
         nimi = models.CharField(max_length=255)
-        sarja = models.ForeignKey(Sarja)
+        sarja = models.ForeignKey(Sarja, on_delete=models.CASCADE)
         piiri = models.CharField(max_length=255, blank=True )
         lippukunta = models.CharField(max_length=255, blank=True )
         puhelinnro = models.CharField(max_length=255, blank=True )
@@ -123,7 +123,7 @@ class Vartio(models.Model) :
         class Meta:
                 ordering=("nro",)
                 verbose_name_plural = "Vartiot"
-                db_table = u"kipa_vartio"
+                db_table = "kipa_vartio"
 
 class Henkilo(models.Model) :
         nimi = models.CharField(max_length=255)
@@ -137,7 +137,7 @@ class Henkilo(models.Model) :
                 return self.nimi
         class Meta:
                 verbose_name_plural = "Henkilot"
-                db_table = u"kipa_henkilo"
+                db_table = "kipa_henkilo"
 
 class Tehtava(models.Model) :
         nimi = models.CharField(max_length=255)
@@ -147,7 +147,7 @@ class Tehtava(models.Model) :
         rastikasky = models.TextField(blank=True )
         jarjestysnro = models.IntegerField()
         kaava = models.CharField(max_length=255)
-        sarja = models.ForeignKey(Sarja)
+        sarja = models.ForeignKey(Sarja, on_delete=models.CASCADE)
         tarkistettu = models.BooleanField()
         maksimipisteet = models.CharField(max_length=255)
         svirhe = models.BooleanField()
@@ -198,7 +198,7 @@ class Tehtava(models.Model) :
         class Meta:
                 ordering=("jarjestysnro",)
                 verbose_name_plural = "Tehtavat"
-                db_table = u"kipa_tehtava"
+                db_table = "kipa_tehtava"
 
 
 class OsaTehtava(models.Model) :
@@ -210,7 +210,7 @@ class OsaTehtava(models.Model) :
         nimi = models.CharField(max_length=255)
         tyyppi = models.CharField(max_length=255, choices = OSA_TYYPIT )
         kaava = models.CharField(max_length=255)
-        tehtava = models.ForeignKey(Tehtava)
+        tehtava = models.ForeignKey(Tehtava, on_delete=models.CASCADE)
 
         def save(self,*args,**kwargs) : # Tulokset uusiksi tallennuksen yhteydessä
                 self.tehtava.sarja.tuloksetUusiksi()
@@ -228,7 +228,7 @@ class OsaTehtava(models.Model) :
         class Meta:
                 verbose_name_plural = "Osatehtavat"
                 ordering = ["nimi"]
-                db_table = u"kipa_osatehtava"
+                db_table = "kipa_osatehtava"
 
 class SyoteMaarite(models.Model) :
         TYYPPI_VAIHTOEHDOT = (
@@ -238,7 +238,7 @@ class SyoteMaarite(models.Model) :
         nimi = models.CharField(max_length=255)
         tyyppi = models.CharField(max_length=255, choices=TYYPPI_VAIHTOEHDOT )
         kali_vihje = models.CharField(max_length=255, blank=True , null=True )
-        osa_tehtava = models.ForeignKey(OsaTehtava)
+        osa_tehtava = models.ForeignKey(OsaTehtava, on_delete=models.CASCADE)
 
         def save(self,*args,**kwargs) : # Tulokset uusiksi tallennuksen yhteydessä
                 self.osa_tehtava.tehtava.sarja.tuloksetUusiksi()
@@ -257,12 +257,12 @@ class SyoteMaarite(models.Model) :
         class Meta:
                 ordering = ['osa_tehtava','nimi']
                 verbose_name_plural = "Syotteen maaritteet"
-                db_table = u"kipa_syotemaarite"
+                db_table = "kipa_syotemaarite"
 
 class Syote(models.Model) :
         arvo = models.CharField(max_length=255, blank = True, null=True )
-        vartio = models.ForeignKey(Vartio, blank=True, null=True )
-        maarite = models.ForeignKey(SyoteMaarite)
+        vartio = models.ForeignKey(Vartio, blank=True, null=True , on_delete=models.CASCADE)
+        maarite = models.ForeignKey(SyoteMaarite, on_delete=models.CASCADE)
         tarkistus = models.CharField(max_length=255, blank=True,null=True )
 
         def save(self,*args,**kwargs) : # Tulokset uusiksi tallennuksen yhteydessä
@@ -283,12 +283,12 @@ class Syote(models.Model) :
                 return kisa.nimi+"."+ sarja.nimi+"."+ tehtava.nimi+"."+ot.nimi+"."+maarite.nimi+"."+str(vartio.nro)
         class Meta:
                 verbose_name_plural = "Syotteet"
-                db_table = u"kipa_syote"
+                db_table = "kipa_syote"
 
 
 class TulosTaulu(models.Model) :
-        vartio = models.ForeignKey(Vartio)
-        tehtava = models.ForeignKey(Tehtava)
+        vartio = models.ForeignKey(Vartio, on_delete=models.CASCADE)
+        tehtava = models.ForeignKey(Tehtava, on_delete=models.CASCADE)
         pisteet = models.CharField(max_length=255)
 
         def save(self,*args,**kwargs) : # Tulokset uusiksi tallennuksen yhteydessä
@@ -306,7 +306,7 @@ class TulosTaulu(models.Model) :
                 return kisa.nimi+"."+ sarja.nimi+"."+ tehtava.nimi +"."+ str(self.vartio.nro)
         class Meta:
                 abstract = True
-                db_table = u"kipa_tulostaulu"
+                db_table = "kipa_tulostaulu"
 
 class TuomarineuvosTulos(TulosTaulu) :
         class Meta :
@@ -316,16 +316,16 @@ class TuomarineuvosTulos(TulosTaulu) :
 class TestausTulos(TulosTaulu):
         class Meta:
                 verbose_name_plural = "Testattavat tulokset"
-                db_table = u'kipa_testaustulos'
+                db_table = 'kipa_testaustulos'
 
 class Parametri(models.Model) :
         nimi = models.CharField(max_length=255)
         arvo = models.CharField(max_length=255)
-        osa_tehtava = models.ForeignKey(OsaTehtava)
+        osa_tehtava = models.ForeignKey(OsaTehtava, on_delete=models.CASCADE)
 
         class Meta:
                 verbose_name_plural = "OsaTehtavan paramentrit"
-                db_table = u'kipa_parametri'
+                db_table = 'kipa_parametri'
 
         def __unicode__(self):
                 ot = self.osa_tehtava

@@ -102,9 +102,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'tupa',
     'django.contrib.admin',
-    #'django.contrib.formtools',
     'django.template',
-    'django.contrib.databrowse'
 ]
 
 LOGIN_URL = ('/kipa/')

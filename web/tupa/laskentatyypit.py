@@ -4,15 +4,16 @@
 
 from decimal import *
 
-import log
+from . import log
 
 def decimal_uni(self) :
         return str(self.quantize(Decimal('0.1'),rounding=ROUND_HALF_UP ) )
 def decimal_repr(self) :
-        return unicode(self.quantize(Decimal('0.1'),rounding=ROUND_HALF_UP ) )
+        return str(self.quantize(Decimal('0.1'),rounding=ROUND_HALF_UP ) )
 
-Decimal.__repr__= decimal_repr
-Decimal.__unicode__= decimal_uni
+# FIXME
+#Decimal.__repr__= decimal_repr
+#Decimal.__unicode__= decimal_uni
 
 class SequenceOperations :
         def __add__(self,other): return self.operate_to_all( lambda a,b: a+b , other)
@@ -38,21 +39,21 @@ class MathDict(SequenceOperations,dict):
         def operate_to_all(self,function2, other) :
                 if type(other) == MathDict :
                         oper = MathDict({})
-                        for k in self.keys() :
+                        for k in list(self.keys()) :
                                 try:
                                         oper[k]=function2(self[k],other[k])
                                 except KeyError: pass
                                 except TypeError : pass
                 elif type(other) == MathList :
                         oper=MathListDict({})
-                        for k in self.keys() :
+                        for k in list(self.keys()) :
                                 try:
                                     oper[k]= [(function2(self[k],l,*args) for l in other)]
                                 except KeyError: pass
                                 except TypeError : pass
                 else:
                         oper = MathDict({})
-                        for k in self.keys() :
+                        for k in list(self.keys()) :
                             try:
                                 oper[k]=function2(self[k],other)
 
@@ -65,13 +66,13 @@ class MathDict(SequenceOperations,dict):
                 Palauttaa kaikki alkiot yhdessä listasa
                 """
                 lista=[]
-                for k,v in self.items(): lista.append(v)
+                for k,v in list(self.items()): lista.append(v)
                 return lista
 
         def __unicode__(self):
-                stringi = u"{"
-                for k,v in self.items():
-                        if v:stringi+= unicode(k) + ": " + unicode(v) + ", "
+                stringi = "{"
+                for k,v in list(self.items()):
+                        if v:stringi+= str(k) + ": " + str(v) + ", "
                 stringi=stringi[:-2]
                 stringi+="}"
                 return stringi
@@ -87,7 +88,7 @@ class MathList(SequenceOperations,list):
                         oper = MathList([function2(self[i],other[i],*args) for i in range(len(self))])
                 elif type(other) == MathDict :
                         oper = MathListDict({})
-                        for k,v in other.items() :
+                        for k,v in list(other.items()) :
                                 oper[k]=[]
                                 for l in self :
                                     try:
@@ -105,9 +106,9 @@ class MathList(SequenceOperations,list):
         def listaksi(self) : return list(self)
 
         def __unicode__(self):
-                stringi=u"["
+                stringi="["
                 for l in self :
-                        if l : stringi+= unicode(l) + ", "
+                        if l : stringi+= str(l) + ", "
                 stringi= stringi[:-2]
                 stringi+="]"
                 return stringi
@@ -120,7 +121,7 @@ class MathListDict(SequenceOperations,dict) :
         def operate_to_all(self,function2,other,*args) :
                 oper={}
                 if type(other) == MathListDict :
-                        for k,v in self.items() :
+                        for k,v in list(self.items()) :
                                 for i in range(len(v)) :
                                         oper[k]=[]
                                         try:
@@ -129,15 +130,15 @@ class MathListDict(SequenceOperations,dict) :
                                         except IndexError: pass
                                         except TypeError : pass
                 elif type(other) == MathList :
-                        for k,v in self.items() :
+                        for k,v in list(self.items()) :
                             try:
                                 oper[k] = MathList([function2(self[k][i],other[i],*args) for i in range(len(self[k]))])
                             except KeyError: pass
                             except TypeError : pass
 
                 elif type(other) == MathDict :
-                        for k,v in other.items() :
-                                if k in self.keys(): # ainoastaan alkiot jotka löytyvät
+                        for k,v in list(other.items()) :
+                                if k in list(self.keys()): # ainoastaan alkiot jotka löytyvät
                                         oper[k]=[]
                                         for l in self[k] :
                                             try:
@@ -146,7 +147,7 @@ class MathListDict(SequenceOperations,dict) :
                                             except TypeError : pass
 
                 else : # muu (oletetaan skalaariksi)
-                        for k,v in self.items():
+                        for k,v in list(self.items()):
                                 oper[k]=[]
                                 for l in v :
                                     try:
@@ -160,7 +161,7 @@ class MathListDict(SequenceOperations,dict) :
                 Palauttaa kaikki alkiot yhdessä listassa
                 """
                 lista=[]
-                for k,v in self.items():
+                for k,v in list(self.items()):
                         lista.extend(v)
                 return lista
 
@@ -172,7 +173,7 @@ class DictDecimal(SequenceOperations,Decimal) :
                 oper=DictDecimal()
                 if type(other) == MathDict :
                         oper = MathDict(other)
-                        for k in other.keys() :
+                        for k in list(other.keys()) :
                                 try:
                                         oper[k]=function2(self,other[k])
                                 except KeyError: pass
@@ -210,7 +211,7 @@ def karsi(lista,lfunktio):
                         pakotus=1 # Tähän täytyisi tehdä rekursiivinen sanakirjojen operointi
 
                 elif hasattr(l, '__contains__') : # on lista
-                        if len(l)>index and not type(l)==str and not type(l)==unicode :
+                        if len(l)>index and not type(l)==str and not type(l)==str :
                                         tavaraa=1
                                         varvi.append( l[index] )
                 else:
@@ -241,7 +242,7 @@ def listaksi(a,*opt):
                         joukkio = [joukkio]
         if type( joukkio )==Decimal:
                         joukkio = [DictDecimal(joukkio)]
-        elif type( joukkio )==unicode or type( joukkio )==str:
+        elif type( joukkio )==str or type( joukkio )==str:
                 return joukkio
         #elif type( joukkio )== MathDict:
         # return joukkio
@@ -254,7 +255,7 @@ def listaksi(a,*opt):
                 return lista
         try:
                 lista=[]
-                for k in joukkio.keys() :
+                for k in list(joukkio.keys()) :
                         if type(joukkio[k])==DictDecimal or type(joukkio[k])==Decimal :
                                 lista.append(DictDecimal(joukkio[k]))
                 return lista
@@ -277,11 +278,11 @@ def run_dict(list,funktio,*param):
                         return karsi(params,funktio)
 
         rValue=MathDict({})
-        for k in mdict.keys() :
+        for k in list(mdict.keys()) :
                 parametrit = []
 
                 for p in params :
-                        if type(p)== MathDict and k in p.keys() : parametrit.append(p[k])
+                        if type(p)== MathDict and k in list(p.keys()) : parametrit.append(p[k])
                         else : parametrit.append(p)
 
                 if list:
@@ -309,7 +310,7 @@ def suorita_lista(funktio,a,*param ) :
         if len(param)==0 :
                 if not type(a)==bool and not type(a)==Decimal and not type(a)==DictDecimal and len(a)==0 :
                         raise KeyError
-                elif type(a)==unicode :
+                elif type(a)==str :
                         tulos=None
                 elif type(a) == Decimal or type(a)==bool :
                         tulos=karsi(listaksi(a),funktio)

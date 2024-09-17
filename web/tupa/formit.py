@@ -8,12 +8,12 @@
 
 from django.forms.models import modelformset_factory
 from django import forms
-from models import *
+from .models import *
 from django.forms import ModelForm
 from django.forms.models import inlineformset_factory
 from decimal import *
 import re
-from django.utils.safestring import SafeUnicode
+from django.utils.safestring import SafeText
 from django.template.loader import render_to_string
 
 class VartioForm(ModelForm):
@@ -24,14 +24,15 @@ class VartioForm(ModelForm):
         nro = forms.IntegerField(label = "Nro", widget=forms.TextInput(attrs={'size':'4'} ) )
         class Meta:
                 model = Vartio
+                fields = ["ulkopuolella", "keskeyttanyt", "nro"]
 
 VartioFormSet = inlineformset_factory(Sarja,
                                 Vartio,
                                 extra=30,
-                                fields=('nro','nimi','lippukunta','piiri',"ulkopuolella", "keskeyttanyt",),
+                                fields=['nro','nimi','lippukunta','piiri',"ulkopuolella", "keskeyttanyt"],
                                 form=VartioForm )
 
-MaariteFormSet = inlineformset_factory(OsaTehtava,SyoteMaarite,extra=3 )
+MaariteFormSet = inlineformset_factory(OsaTehtava,SyoteMaarite,extra=3, fields=["nimi", "tyyppi", "kali_vihje", "osa_tehtava"] )
 
 class SarjaForm(ModelForm):
         nimi = forms.CharField(label = "Nimi")
@@ -41,8 +42,8 @@ class SarjaForm(ModelForm):
         vartion_maksimikoko = forms.IntegerField(widget=forms.HiddenInput,required=False )
         vartion_minimikoko = forms.IntegerField(widget=forms.HiddenInput,required=False)
 
-SarjaFormSet = inlineformset_factory(Kisa,Sarja,extra=8 , form=SarjaForm)
-SarjaFormSet.helppiteksti=SafeUnicode('<span onmouseover="tooltip.show(\'Sarjan <strong>nimet</strong> voivat sis&auml;lt&auml;&auml; &auml;&auml;kk&ouml;si&auml; ja v&auml;lily&ouml;ntej&auml;.<br><strong>Tasapisteiss&auml; m&auml;&auml;r&auml;&auml;v&auml;t teht&auml;v&auml;t</strong> -kohdat kertovat tasapisteiss&auml; m&auml;&auml;r&auml;&auml;vien teht&auml;vien numerot. Palaa t&auml;ytt&auml;m&auml;&auml;n ne m&auml;&auml;ritelty&auml;si kyseiset teht&auml;v&auml;t.\');" onmouseout="tooltip.hide();"><img src="/kipamedia/help_small.png" /></span>')
+SarjaFormSet = inlineformset_factory(Kisa,Sarja,extra=8 , form=SarjaForm, fields=["nimi", "vartion_maksimikoko", "vartion_minimikoko", "kisa"])
+SarjaFormSet.helppiteksti=SafeText('<span onmouseover="tooltip.show(\'Sarjan <strong>nimet</strong> voivat sis&auml;lt&auml;&auml; &auml;&auml;kk&ouml;si&auml; ja v&auml;lily&ouml;ntej&auml;.<br><strong>Tasapisteiss&auml; m&auml;&auml;r&auml;&auml;v&auml;t teht&auml;v&auml;t</strong> -kohdat kertovat tasapisteiss&auml; m&auml;&auml;r&auml;&auml;vien teht&auml;vien numerot. Palaa t&auml;ytt&auml;m&auml;&auml;n ne m&auml;&auml;ritelty&auml;si kyseiset teht&auml;v&auml;t.\');" onmouseout="tooltip.hide();"><img src="/kipamedia/help_small.png" /></span>')
 
 TehtavaValintaFormSet = inlineformset_factory(Sarja,Tehtava,fields=('jarjestysnro',))
 
@@ -60,21 +61,22 @@ class TuhoaTehtavaForm(ModelForm):
         svirhe = forms.BooleanField(widget=forms.HiddenInput,required=False)
         class Meta :
                 model=Tehtava
-
+                fields = ["nimi", "tehtavaryhma", "tehtavaluokka", "rastikasky", "jarjestysnro", "kaava", "sarja", "tarkistettu", "lyhenne", "maksimipisteet", "svirhe"]
+                
 tuhoaTehtaviaFormset = modelformset_factory(Tehtava,can_delete=True,extra=0,form=TuhoaTehtavaForm)
 
 class TehtavaLinkkilistaFormset(tuhoaTehtaviaFormset):
         def __unicode__(self) :
-                piirto=unicode(self.management_form)
+                piirto=str(self.management_form)
                 for form in self.forms :
                         linkki=""
                         nimi=""
                         if form.instance:
-                                linkki=unicode(form.instance.id)+"/"
-                                nimi=unicode(form.instance.jarjestysnro)+". "+unicode(form.instance.nimi)
+                                linkki=str(form.instance.id)+"/"
+                                nimi=str(form.instance.jarjestysnro)+". "+str(form.instance.nimi)
                         piirto=piirto+"<a href="+linkki+">"+nimi+"</a>  "+form.as_p()+"<br>"
                         piirto = piirto.replace("<p>","").replace("</p>","")
-                return SafeUnicode(piirto)
+                return SafeText(piirto)
 
 class HelpWidget(forms.TextInput):
         """
@@ -85,7 +87,7 @@ class HelpWidget(forms.TextInput):
                 self.helptext=helptext
 
         def render(self, name , value=None, attrs=None):
-                return SafeUnicode(super(HelpWidget, self).render(name, value, attrs) ) + '<span onmouseover="tooltip.show(\''+ self.helptext +'\');" onmouseout="tooltip.hide();"><img src="/kipamedia/help_small.png" /></span>'
+                return SafeText(super(HelpWidget, self).render(name, value, attrs) ) + '<span onmouseover="tooltip.show(\''+ self.helptext +'\');" onmouseout="tooltip.hide();"><img src="/kipamedia/help_small.png" /></span>'
 
 
 
@@ -119,7 +121,7 @@ class PisteField(forms.CharField) :
                 haku = re.match(r"^((\d*)[,.]?\d+)$",value)
                 if haku:
                         merkkijono='0'+haku.group(0)
-                        return unicode( Decimal(merkkijono.replace(",",".")) )
+                        return str( Decimal(merkkijono.replace(",",".")) )
                 if value=="kesk":
                         return value
                 elif value=="h":
@@ -145,7 +147,7 @@ class AikaField(forms.CharField):
                 super(AikaField, self).clean(value)
                 haku = re.match(r"^(\d+):(\d+):(\d+)$",value)
                 if haku:
-                        return unicode(int(haku.group(1))*60*60 + int(haku.group(2))*60 + int(haku.group(3)))
+                        return str(int(haku.group(1))*60*60 + int(haku.group(2))*60 + int(haku.group(3)))
                 elif not value :
                         return None
                 elif value=="kesk":
@@ -244,7 +246,7 @@ def tulostauluFormFactory( tauluTyyppi ) :
                         self.vartio=vartio
                         self.tehtava=tehtava
                 def is_valid(self) :
-                        if self.posti and self.id in self.posti.keys():
+                        if self.posti and self.id in list(self.posti.keys()):
                                 self.pisteet=self.posti[self.id]
                                 return 1
                         else:
@@ -285,10 +287,12 @@ class KisaForm(ModelForm):
                 return nimi
         class Meta:
                 model = Kisa
+                fields = ["nimi"]
 
 class PoistaTehtavaForm(ModelForm):
         class Meta:
                 model = Tehtava
+                fields = []
 
 class UploadFileForm(forms.Form):
         file  = forms.FileField()

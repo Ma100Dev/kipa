@@ -4,12 +4,12 @@
 """
 Tässä tiedostossa on määritelty kaikki funktiot joita voi käyttää laskennan kaavoissa.
 """
-from laskentatyypit import *
+from .laskentatyypit import *
 
 from math import *
 #from decimal import *
 
-import log
+from . import log
 
 def pienin(*lista) :
         if len(lista)==1 : return min(lista)
@@ -52,7 +52,7 @@ def summa( *lista ) :
         """
         s=DictDecimal(0)
         for v in lista :
-                if v and not type(v)==unicode and not type(v)==str:
+                if v and not type(v)==str and not type(v)==str:
                         s=s+v
         return s
 

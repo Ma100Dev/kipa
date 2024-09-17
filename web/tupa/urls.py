@@ -1,51 +1,52 @@
-# encoding: utf-8
+# encoding: utf-8 # TODO: Remove these
 # KiPa(KisaPalvelu), tuloslaskentajärjestelmä partiotaitokilpailuihin
 #    Copyright (C) 2010  Espoon Partiotuki ry. ept@partio.fi
 
-from django.conf.urls.defaults import *
-from models import *
+from django.urls import re_path, include
+from .models import *
+from .views import *
 from django.conf import settings
 
 tal=r"(?P<talletettu>(talletettu)?)/?$"
 
-urlpatterns = patterns('tupa.views',
-        (r'^apua/', 'apua'),
-        (r'^$', 'etusivu'),
-        (r'^post_txt/(?P<parametrit>[^/]+)/$', 'post_txt'),
-        (r'^(?P<kisa_nimi>[^/]+)/tallenna/$', 'tallennaKisa'),
-        (r'^login/$', 'loginSivu'),
-        (r'^logout/$', 'logoutSivu'),
-        (r'^lisaaKisa/$', 'korvaaKisa'),
-        (r'^(?P<kisa_nimi>[^/]+)/$', 'kisa'),
-        (r'^uusiKisa/maarita/$', 'maaritaKisa'),
-        (r'^(?P<kisa_nimi>[^/]+)/korvaa/$', 'korvaaKisa'),
-        (r'^(?P<kisa_nimi>[^/]+)/poista/$', 'poistaKisa'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/'+tal, 'maaritaKisa'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/$', 'maaritaValitseTehtava'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/uusi/sarja/(?P<sarja_id>\d+)/$', 'maaritaTehtava'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/(?P<tehtava_id>\d+)/'+tal , 'maaritaTehtava'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/vaiheet/(?P<tehtava_id>\d+)/(?P<vartio_id>\d*)/?' , 'tehtavanVaiheet'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/vartiot/'+tal, 'maaritaVartiot'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/kopioi/sarjaan/(?P<sarja_id>\d+)/$', 'kopioiTehtavia'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/testitulos/'+tal, 'testiTulos'),
-        (r'^(?P<kisa_nimi>[^/]+)/luo/sarja/(?P<sarja_id>\d+)/testitulokset/$', 'luoTestiTulokset'),
-        (r'^(?P<kisa_nimi>[^/]+)/maarita/tuomarineuvos/'+tal ,'tuomarineuvos'),
-        (r'^(?P<kisa_nimi>[^/]+)/syota/(?P<tarkistus>(tarkistus/)?)$', 'syotaKisa'),
-        (r'^(?P<kisa_nimi>[^/]+)/syota/(?P<tarkistus>(tarkistus/)?)tehtava/(?P<tehtava_id>\d+)/'+tal, 'syotaTehtava'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/normaali/$', 'tulosta'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/normaali/sarja/(?P<sarja_id>\d+)/$', 'tulostaSarja'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/tilanne/$', 'laskennanTilanne'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/heijasta/sarja/(?P<sarja_id>\d+)/$', 'heijasta'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/heijasta/$', 'heijasta'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/tuloste/sarja/(?P<sarja_id>\d+)/$', 'tulostaSarjaHTML'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/tuloste/$', 'tulosta'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/csv/sarja/(?P<sarja_id>\d+)/$', 'sarjanTuloksetCSV'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/csv/$', 'tulosta'),
-        (r'^(?P<kisa_nimi>[^/]+)/tulosta/piirit/$', 'piirit'),
-        )
+urlpatterns = [
+        re_path(r'^apua/', apua),
+        re_path(r'^$', etusivu),
+        re_path(r'^post_txt/(?P<parametrit>[^/]+)/$', post_txt),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tallenna/$', tallennaKisa),
+        re_path(r'^login/$', loginSivu),
+        re_path(r'^logout/$', logoutSivu),
+        re_path(r'^lisaaKisa/$', korvaaKisa),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/$', kisa),
+        re_path(r'^uusiKisa/maarita/$', maaritaKisa),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/korvaa/$', korvaaKisa),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/poista/$', poistaKisa),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/'+tal, maaritaKisa),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/$', maaritaValitseTehtava),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/uusi/sarja/(?P<sarja_id>\d+)/$', maaritaTehtava),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/(?P<tehtava_id>\d+)/'+tal , maaritaTehtava),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/vaiheet/(?P<tehtava_id>\d+)/(?P<vartio_id>\d*)/?' , tehtavanVaiheet),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/vartiot/'+tal, maaritaVartiot),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/tehtava/kopioi/sarjaan/(?P<sarja_id>\d+)/$', kopioiTehtavia),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/testitulos/'+tal, testiTulos),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/luo/sarja/(?P<sarja_id>\d+)/testitulokset/$', luoTestiTulokset),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/maarita/tuomarineuvos/'+tal ,tuomarineuvos),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/syota/(?P<tarkistus>(tarkistus/)?)$', syotaKisa),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/syota/(?P<tarkistus>(tarkistus/)?)tehtava/(?P<tehtava_id>\d+)/'+tal, syotaTehtava),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/normaali/$', tulosta),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/normaali/sarja/(?P<sarja_id>\d+)/$', tulostaSarja),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/tilanne/$', laskennanTilanne),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/heijasta/sarja/(?P<sarja_id>\d+)/$', heijasta),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/heijasta/$', heijasta),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/tuloste/sarja/(?P<sarja_id>\d+)/$', tulostaSarjaHTML),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/tuloste/$', tulosta),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/csv/sarja/(?P<sarja_id>\d+)/$', sarjanTuloksetCSV),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/csv/$', tulosta),
+        re_path(r'^(?P<kisa_nimi>[^/]+)/tulosta/piirit/$', piirit),
+]
 
 if settings.DEBUG :
-        urlpatterns += patterns('',
-                (r'^kipamedia/(?P<path>.*)$', 'django.views.static.serve',
+        re_path += patterns('',
+                re_path(r'^kipamedia/(?P<path>.*)$', 'django.views.static.serve',
                 {'document_root': settings.STATIC_DOC_ROOT}),)
 

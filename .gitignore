@@ -1,6 +1,7 @@
 *.pyc
 src
 env*
+*venv
 *.orig
 *.rej
 web/settings/local.py

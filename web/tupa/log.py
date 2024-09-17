@@ -24,12 +24,12 @@ def __logFunction(function,params,result):
         if(params):
 
                 laskentaloki += "<br>"
-                laskentaloki+= unicode(function.__name__)  + "("
+                laskentaloki+= str(function.__name__)  + "("
                 try :
-                        for p in params : laskentaloki += unicode(p) + ", "
+                        for p in params : laskentaloki += str(p) + ", "
                 except: pass
                 laskentaloki=laskentaloki[:-2]
-                laskentaloki+= ")=<br><b> " + unicode(result)
+                laskentaloki+= ")=<br><b> " + str(result)
                 laskentaloki+= "</b>"
                 laskentaloki += "<br>"
 

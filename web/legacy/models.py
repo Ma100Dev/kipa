@@ -14,7 +14,7 @@ class Kisa(models.Model) :
         aika = models.CharField(max_length=255, blank=True)
         paikka = models.CharField(max_length=255)
         class Meta:
-            db_table = u'tupa_kisa'
+            db_table = 'tupa_kisa'
 
 
         #end_legacy_class
@@ -27,7 +27,7 @@ class Sarja(models.Model) :
         vartion_minimikoko = models.IntegerField(null=True, blank=True)
         kisa = models.ForeignKey(Kisa)
         class Meta:
-            db_table = u'tupa_sarja'
+            db_table = 'tupa_sarja'
 
 
         #end_legacy_class
@@ -46,7 +46,7 @@ class Vartio(models.Model) :
         keskeyttanyt = models.IntegerField(null=True, blank=True)
         ulkopuolella = models.IntegerField(null=True, blank=True)
         class Meta:
-            db_table = u'tupa_vartio'
+            db_table = 'tupa_vartio'
 
 
         #end_legacy_class
@@ -61,7 +61,7 @@ class Henkilo(models.Model) :
         puhelin_nro = models.CharField(max_length=15, blank=True)
         homma = models.CharField(max_length=255, blank=True)
         class Meta:
-            db_table = u'tupa_henkilo'
+            db_table = 'tupa_henkilo'
 
 
         #end_legacy_class
@@ -78,7 +78,7 @@ class Tehtava(models.Model) :
         sarja = models.ForeignKey(Sarja)
         tarkistettu = models.BooleanField()
         class Meta:
-            db_table = u'tupa_tehtava'
+            db_table = 'tupa_tehtava'
 
 
         #end_legacy_class
@@ -92,7 +92,7 @@ class Osatehtava(models.Model) :
         kaava = models.CharField(max_length=255)
         tehtava = models.ForeignKey(Tehtava)
         class Meta:
-            db_table = u'tupa_osatehtava'
+            db_table = 'tupa_osatehtava'
 
 
         #end_legacy_class
@@ -105,7 +105,7 @@ class Syotemaarite(models.Model) :
         kali_vihje = models.CharField(max_length=255, blank=True)
         osa_tehtava = models.ForeignKey(Osatehtava)
         class Meta:
-            db_table = u'tupa_syotemaarite'
+            db_table = 'tupa_syotemaarite'
 
 
         #end_legacy_class
@@ -118,7 +118,7 @@ class Syote(models.Model) :
         maarite = models.ForeignKey(Syotemaarite)
         tarkistus = models.CharField(max_length=255, blank=True)
         class Meta:
-            db_table = u'tupa_syote'
+            db_table = 'tupa_syote'
 
 
         #end_legacy_class
@@ -130,7 +130,7 @@ class Tuomarineuvostulos(models.Model) :
         tehtava = models.ForeignKey(Tehtava)
         pisteet = models.CharField(max_length=255)
         class Meta:
-            db_table = u'tupa_tuomarineuvostulos'
+            db_table = 'tupa_tuomarineuvostulos'
 
 
         #end_legacy_class
@@ -142,7 +142,7 @@ class Testaustulos(models.Model):
         tehtava = models.ForeignKey(Tehtava)
         pisteet = models.CharField(max_length=255)
         class Meta:
-            db_table = u'tupa_testaustulos'
+            db_table = 'tupa_testaustulos'
 
 
         #end_legacy_class
@@ -154,7 +154,7 @@ class Parametri(models.Model) :
         arvo = models.CharField(max_length=255)
         osa_tehtava = models.ForeignKey(Osatehtava)
         class Meta:
-            db_table = u'tupa_parametri'
+            db_table = 'tupa_parametri'
 
 
         #end_legacy_class

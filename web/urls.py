@@ -1,16 +1,16 @@
-from django.conf.urls.defaults import *
+from django.urls import re_path, include
 from django.contrib import admin
 from django.conf import settings
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = re_path('',
         (r'^kipa/',  include('tupa.urls')),
         (r'^admin/', include(admin.site.urls)),
 )
 
 if settings.SERVE_MEDIA:
-        urlpatterns += patterns('',
+        urlpatterns += re_path('',
                 (r'^kipamedia/(?P<path>.*)$', 'django.views.static.serve',
                 {'document_root': settings.STATIC_DOC_ROOT}),)
 
