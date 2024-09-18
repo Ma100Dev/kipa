@@ -6,14 +6,23 @@ from decimal import *
 
 from . import log
 
-def decimal_uni(self) :
+def decimal_str(self) :
         return str(self.quantize(Decimal('0.1'),rounding=ROUND_HALF_UP ) )
 def decimal_repr(self) :
         return str(self.quantize(Decimal('0.1'),rounding=ROUND_HALF_UP ) )
-
-# FIXME
-#Decimal.__repr__= decimal_repr
-#Decimal.__unicode__= decimal_uni
+OriginalDecimal = Decimal
+class DecimalWrapper(OriginalDecimal):
+    def __init__(self, value):
+        if isinstance(value, DecimalWrapper):
+            self._value = value._value  # Prevent double wrapping
+        else:
+            self._value = OriginalDecimal(value)
+    __str__ = decimal_str
+    __repr__ = decimal_repr
+    # Delegate all other Decimal methods to the underlying Decimal object
+    def __getattr__(self, name):
+        return getattr(self._value, name)
+Decimal = DecimalWrapper
 
 class SequenceOperations :
         def __add__(self,other): return self.operate_to_all( lambda a,b: a+b , other)
