@@ -12,7 +12,7 @@ def decimal_repr(self) :
         return str(self.quantize(Decimal('0.1'),rounding=ROUND_HALF_UP ) )
 OriginalDecimal = Decimal
 class DecimalWrapper(OriginalDecimal):
-    def __init__(self, value):
+    def __init__(self, value=OriginalDecimal()):
         if isinstance(value, DecimalWrapper):
             self._value = value._value  # Prevent double wrapping
         else:
