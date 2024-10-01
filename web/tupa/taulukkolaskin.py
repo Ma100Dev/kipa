@@ -46,34 +46,32 @@ def laske(lauseke, m={}, funktiot={}):
     log.logString("Tehtävän lause = " + lauseke)
 
     # Poistetaan välilyönnit ja enterit:
-    lause = lauseke.replace('\n', '')
-    lause = lause.replace('\r', '')
-    lause = lause.replace(' ', '')
-
+    lause = lauseke.replace('\n','')
+    lause = lause.replace('\r','')
+    lause = lause.replace(' ','')
     # Poistetaan "-0" termit
-    lause = re.sub(r"([-][0](?![0-9.]))", r"", lause)
+    lause=re.sub(r"([-][0](?![0-9.]))",r"",lause)
+    # Poistetaan etunollat
+    lause=re.sub(r"0+([0-9]+)", r"\g<1>",lause)
     # Korvataan funktiot
     # Vakionumerot numeroinstansseiksi:
-    oper = r"\-+*/(,[<>=]"
-    num = r"-?\d+([.]\d+)?"
-
-    # Correctly escape square brackets
-    lause = re.sub(r"((?<![^" + oper + r"])"+num+r")(?=[" + re.escape(oper) + r"]|$|\]|\))",
-                   r"num('\g<1>')", lause)
-
+    oper=re.escape(r"-+*/(,[<>=")
+    num =re.escape(r"-?\d+([.]\d+)?")
+    lause=re.sub(r"((?<![^"+oper+"])"+num+")(?=["+oper+"]|$|\]|\))",r"num('\g<1>')",lause)
+    #lause=re.sub(r"((?<![^-+*/(,[])-?\d+([.]\d+)?)(?![\.0-9])",r"num('\g<1>')",lause)    
     # Korvataan muuttujien nimet oikeilla muuttujilla:
-    lause = re.sub(r"\.([a-zA-Z_]\w*)(?=\.)", r"['\g<1>']", lause)  # .x. -> [x].
-    lause = re.sub(r"\.([a-zA-Z_]+[a-zA-Z_0-9]*)", r"['\g<1>']", lause)  # .x  -> [x]
-    lause = re.sub(r"\.(\d+)(?=[" + re.escape(oper) + r"]|$|\]|\))", r"['\g<1>']", lause)  # .n  -> [n]
-
-    # Properly escape square brackets and handle variables with square brackets
-    lause = re.sub(r"(?<=[" + re.escape(oper) + r"])([a-zA-Z_0-9]\w*(?=\[))", r"m['\g<1>']", lause)  # x[  -> m[x][
-    
+    lause=re.sub(r"\.([a-zA-Z_]\w*)(?=\.)",r"['\g<1>']",lause) # .x. -> [x].
+    lause=re.sub(r"\.([a-zA-Z_]+[a-zA-Z_0-9]*)",r"['\g<1>']",lause)       # .x  -> [x]
+    lause=re.sub(r"\.(\d+)(?=["+oper+"]|$|\]|\))",r"['\g<1>']",lause)       # .n  -> [n]
+    lause=re.sub(r"(?<=["+oper+r"])([a-zA-Z_0-9]\w*(?=[[]))",r"m['\g<1>']",lause) # x[  -> m[x][
     # Korvataan yksinäiset muuttujat (lähinnä funktioita):
-    lause = re.sub(r"([a-zA-Z_][a-zA-Z_0-9]*(?![a-zA-Z_0-9.(]|\[))", r"m['\g<1>']", lause)  # x -> m[x]
-    lause = re.sub(r"([a-zA-Z_][a-zA-Z_0-9]*(?![a-zA-Z_0-9.]|\[))", r"f['\g<1>']", lause)  # x( -> f[x](
-    tulos = None
+    lause=re.sub(r"([a-zA-Z_][a-zA-Z_0-9]*(?![a-zA-Z_0-9.(]|[[']))",r"m['\g<1>']",lause) # x -> m[x]
+    lause=re.sub(r"([a-zA-Z_][a-zA-Z_0-9]*(?![a-zA-Z_0-9.]|[[']))",r"f['\g<1>']",lause) # x( -> f[x](
+    # lause=re.sub(r"\'([0-9]+)\'", r"\g<1>", lause) # Poistetaan kokonaislukuja ympäröivät heittomerkit
+    tulos=None
     # Lasketaan tulos:
+    print(lause) # TODO: Remove debug print and extra stuff
+    """
     if settings.DEBUG:
         try:
             tulos = eval(lause)
@@ -96,7 +94,9 @@ def laske(lauseke, m={}, funktiot={}):
             tulos = None
         except:
             tulos = None
-
+    """
+    tulos = eval(lause)
+    
     try:
         log.logString("laskettu tulos= " + str(tulos.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)))
     except:
